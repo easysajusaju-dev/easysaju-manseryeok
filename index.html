@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>나만의 만세력</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; max-width: 600px; margin: 20px auto; padding: 15px; background-color: #f9f9f9; }
+        h1 { text-align: center; color: #333; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; }
+        input { width: 95%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background-color: #007bff; color: white; border: none; border-radius: 4px; font-size: 16px; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        #result { margin-top: 20px; padding: 15px; background-color: #fff; border: 1px solid #ddd; border-radius: 4px; }
+        #saju-result { font-size: 2em; font-weight: bold; text-align: center; letter-spacing: 0.2em; margin-bottom: 10px; }
+        #daeun-result { font-size: 1.2em; line-height: 1.6; }
+    </style>
+</head>
+<body>
+
+    <h1>나만의 만세력</h1>
+
+    <div class="input-group">
+        <label for="birthdate">생년월일</label>
+        <input type="date" id="birthdate" value="1990-01-01">
+    </div>
+
+    <div class="input-group">
+        <label for="birthtime">태어난 시</label>
+        <input type="time" id="birthtime" value="12:00">
+    </div>
+
+    <button id="calculate-btn">사주 보기</button>
+
+    <div id="result" style="display:none;">
+        <div id="saju-result"></div>
+        <div id="daeun-result"></div>
+    </div>
+
+    <script type="module">
+        // 1. 필요한 부품(모듈)들을 가져옵니다.
+        import { Manseryeok } from './src/models/Manseryeok.js';
+
+        // 2. 화면에 있는 버튼, 입력창 등을 컴퓨터가 쓸 수 있게 변수로 만듭니다.
+        const dateInput = document.getElementById('birthdate');
+        const timeInput = document.getElementById('birthtime');
+        const calculateBtn = document.getElementById('calculate-btn');
+        const resultDiv = document.getElementById('result');
+        const sajuResultDiv = document.getElementById('saju-result');
+        const daeunResultDiv = document.getElementById('daeun-result');
+
+        // 3. '사주 보기' 버튼을 클릭했을 때 할 일을 정해줍니다.
+        calculateBtn.addEventListener('click', () => {
+            // 3-1. 사용자가 입력한 날짜와 시간을 가져옵니다.
+            const dateValue = dateInput.value;
+            const timeValue = timeInput.value;
+
+            if (!dateValue || !timeValue) {
+                alert('생년월일과 시간을 모두 입력해주세요.');
+                return;
+            }
+
+            // 3-2. 날짜와 시간을 합쳐서 컴퓨터가 아는 형태로 바꿉니다.
+            const fullDateTime = new Date(`${dateValue}T${timeValue}`);
+
+            // 3-3. 드디어! 만세력 엔진을 작동시킵니다.
+            const manseryeok = new Manseryeok(fullDateTime);
+            
+            // 3-4. 엔진에게 사주팔자와 대운을 계산해달라고 요청합니다.
+            const saju = manseryeok.getSaju();
+            const daeun = manseryeok.getDaeun();
+
+            // 3-5. 계산 결과를 화면에 예쁘게 보여줍니다.
+            sajuResultDiv.innerText = `${saju.getSiju().toString()} ${saju.getIlju().toString()} ${saju.getWolju().toString()} ${saju.getYeonju().toString()}`;
+            
+            let daeunText = '--- 대운 ---\n';
+            daeun.forEach(d => {
+                daeunText += `${String(d.age).padStart(2, ' ')}세: ${d.ganji.toString()}\n`;
+            });
+            daeunResultDiv.innerText = daeunText;
+
+            // 3-6. 숨겨뒀던 결과 창을 보여줍니다.
+            resultDiv.style.display = 'block';
+        });
+    </script>
+</body>
+</html>
